@@ -24,6 +24,8 @@
     --night-3: #FF6F91;
     --font-ui: "Fredoka", "Noto Sans Georgian", ui-rounded, system-ui, sans-serif;
     --font-hand: "Caveat", "Noto Sans Georgian", cursive;
+    --him: 200px;
+    --her: 140px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,7 +42,7 @@
     -webkit-user-select: none;
   }
 
-  /* ---------- stage 1: the chick ---------- */
+  /* ---------- stage 1: the chicks ---------- */
 
   #stage {
     position: fixed;
@@ -85,8 +87,8 @@
 
   .speech {
     position: relative;
-    z-index: 3;
-    max-width: min(320px, 90vw);
+    z-index: 4;
+    max-width: min(300px, 80vw);
     min-height: 1em;
     padding: 12px 18px;
     background: #fff;
@@ -117,20 +119,41 @@
     100% { transform: scale(1);  opacity: 1; }
   }
 
-  .chick-wrap {
+  .duo {
     position: relative;
     z-index: 1;
-    width: 210px;
-    height: 210px;
+    width: 100%;
+    height: var(--him);
+  }
+
+  .chick-wrap {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: var(--him);
+    height: var(--him);
     cursor: pointer;
-    transform: scale(var(--grow, 1));
+    transform: translateX(calc(-50% + var(--hx, 0px))) scale(var(--grow, 1));
     transform-origin: 50% 100%;
     transition: transform .45s cubic-bezier(.3,1.6,.5,1);
   }
 
-  .chick-wrap svg { width: 100%; height: 100%; overflow: visible; display: block; }
+  .her-wrap {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    z-index: 2;
+    width: var(--her);
+    height: var(--her);
+    cursor: pointer;
+    transform: translateX(calc(-50% + var(--sx, 0px)));
+    transition: transform .45s cubic-bezier(.3,1.6,.5,1);
+  }
 
-  #chick { animation: idle 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 95%; }
+  .chick-wrap svg, .her-wrap svg { width: 100%; height: 100%; overflow: visible; display: block; }
+
+  #chick, #herChick { animation: idle 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 95%; }
+  #herChick { animation-delay: -1.2s; }
 
   @keyframes idle {
     0%, 100% { transform: translateY(0) rotate(-2deg); }
@@ -163,27 +186,61 @@
     50%      { transform: rotate(6deg) scale(.96, 1.04); }
   }
 
-  #eyesOpen { animation: blink 4s infinite; transform-box: fill-box; transform-origin: center; }
+  #eyesOpen, #herEyesOpen { animation: blink 4s infinite; transform-box: fill-box; transform-origin: center; }
+  #herEyesOpen { animation-duration: 4.6s; animation-delay: 1.3s; }
 
   @keyframes blink {
     0%, 94%, 100% { transform: scaleY(1); }
     97%           { transform: scaleY(.1); }
   }
 
-  #eyesHappy { display: none; }
-  #chick.happy #eyesOpen { display: none; }
-  #chick.happy #eyesHappy { display: inline; }
+  #eyesHappy, #herEyesHappy { display: none; }
+  #chick.happy #eyesOpen, #chick.love #eyesOpen, #herChick.love #herEyesOpen { display: none; }
+  #chick.happy #eyesHappy, #chick.love #eyesHappy, #herChick.love #herEyesHappy { display: inline; }
 
-  #beakLow { transform-box: fill-box; transform-origin: 50% 0; transition: transform .12s; }
+  #beakLow, #herBeakLow { transform-box: fill-box; transform-origin: 50% 0; transition: transform .12s; }
   #chick.happy #beakLow { transform: translateY(3px) scaleY(1.3); }
 
-  .wing { transform-box: fill-box; transition: transform .15s; }
-  #wingL { transform-origin: 100% 20%; }
-  #wingR { transform-origin: 0% 20%; }
-  #chick.happy #wingL { transform: rotate(35deg); }
-  #chick.happy #wingR { transform: rotate(-35deg); }
+  .wing { transform-box: fill-box; transition: transform .2s; }
+  #wingL, #herWingL { transform-origin: 100% 20%; }
+  #wingR, #herWingR { transform-origin: 0% 20%; }
+  #chick.happy #wingL, #chick.love #wingL { transform: rotate(35deg); }
+  #chick.happy #wingR, #chick.love #wingR { transform: rotate(-35deg); }
+  .her-wrap.hugging #herWingL { transform: rotate(75deg); }
 
   .cheek { opacity: var(--blush-amt, .4); transition: opacity .3s; }
+  .her-cheek { opacity: .55; transition: opacity .3s; }
+  #herChick.love .her-cheek { opacity: 1; }
+
+  /* she hangs on to his feet when he flies off */
+  .her-wrap.dangle #herChick { animation: dangle 1s ease-in-out infinite; transform-origin: 50% 0; }
+  .her-wrap.dangle #herWingL { transform: rotate(150deg); }
+  .her-wrap.dangle #herWingR { transform: rotate(-150deg); }
+
+  @keyframes dangle {
+    0%, 100% { transform: rotate(-12deg); }
+    50%      { transform: rotate(12deg); }
+  }
+
+  .her-say {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    translate: -50% -6px;
+    white-space: nowrap;
+    padding: 6px 12px;
+    background: #fff;
+    border-radius: 14px;
+    font-size: .95rem;
+    font-weight: 600;
+    color: var(--rose-deep);
+    box-shadow: 0 4px 0 rgba(74, 44, 42, .06), 0 8px 20px rgba(255, 92, 138, .18);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s;
+  }
+
+  .her-say.show { opacity: 1; animation: pop .35s cubic-bezier(.3,1.6,.5,1); }
 
   .chick-wrap.charge #chick { animation: shake .08s linear infinite; }
   .chick-wrap.charge { animation: charge 1.3s ease-in forwards; }
@@ -195,9 +252,28 @@
   }
 
   @keyframes charge {
-    0%   { filter: brightness(1); transform: scale(var(--grow, 1)); }
-    70%  { transform: scale(calc(var(--grow, 1) * 1.12), calc(var(--grow, 1) * 1.08)); }
-    100% { filter: brightness(1.2) saturate(1.2); transform: scale(calc(var(--grow, 1) * 1.22), calc(var(--grow, 1) * 1.16)); }
+    0%   { filter: brightness(1); transform: translateX(calc(-50% + var(--hx, 0px))) scale(var(--grow, 1)); }
+    70%  { transform: translateX(calc(-50% + var(--hx, 0px))) scale(calc(var(--grow, 1) * 1.12), calc(var(--grow, 1) * 1.08)); }
+    100% { filter: brightness(1.2) saturate(1.2); transform: translateX(calc(-50% + var(--hx, 0px))) scale(calc(var(--grow, 1) * 1.22), calc(var(--grow, 1) * 1.16)); }
+  }
+
+  .big-heart {
+    position: fixed;
+    z-index: 55;
+    font-size: 76px;
+    line-height: 1;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0);
+    animation: bigHeart 1.9s cubic-bezier(.3,1.6,.5,1) forwards;
+  }
+
+  @keyframes bigHeart {
+    0%   { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+    20%  { transform: translate(-50%, -50%) scale(1.15); }
+    35%  { transform: translate(-50%, -50%) scale(.95); }
+    50%  { transform: translate(-50%, -50%) scale(1.1); }
+    80%  { transform: translate(-50%, -60%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -90%) scale(.8); opacity: 0; }
   }
 
   .pop-text {
@@ -240,7 +316,7 @@
   #btn {
     --dx: 0px; --dy: 0px; --rot: 0deg; --press: 0px;
     position: relative;
-    z-index: 2;
+    z-index: 3;
     font: inherit;
     font-size: 1.35rem;
     font-weight: 700;
@@ -536,20 +612,30 @@
     to   { opacity: 1; transform: none; }
   }
 
-  .letter .mini-chick {
+  .letter .mini-duo {
     position: absolute;
     top: -78px;
-    right: 22px;
-    width: 100px;
-    height: 100px;
+    right: 16px;
+    display: flex;
+    align-items: flex-end;
     animation: peek 2.4s ease-in-out infinite;
   }
 
-  .letter .mini-chick svg { width: 100%; height: 100%; overflow: visible; }
+  .mini-duo svg { overflow: visible; display: block; }
+  .mini-duo .mini-him { width: 96px; height: 96px; }
+  .mini-duo .mini-her { width: 72px; height: 72px; margin-left: -24px; }
+
+  .mini-duo .mini-love {
+    position: absolute;
+    top: -6px;
+    left: 58%;
+    font-size: 22px;
+    animation: beat 1.4s ease-in-out infinite;
+  }
 
   @keyframes peek {
-    0%, 100% { transform: translateY(0) rotate(-4deg); }
-    50%      { transform: translateY(-6px) rotate(4deg); }
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50%      { transform: translateY(-6px) rotate(3deg); }
   }
 
   .letter .date {
@@ -617,12 +703,12 @@
   }
 
   @media (min-width: 700px) {
-    .chick-wrap { width: 250px; height: 250px; }
+    :root { --him: 240px; --her: 165px; }
     .letter { padding: 48px 48px 40px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    #chick, .floaty, .envelope, .letter .mini-chick, .heart-badge { animation-duration: 0s !important; animation-iteration-count: 1 !important; }
+    #chick, #herChick, .floaty, .envelope, .letter .mini-duo, .heart-badge { animation-duration: 0s !important; animation-iteration-count: 1 !important; }
   }
 </style>
 </head>
@@ -631,74 +717,155 @@
 <main id="stage">
   <div class="speech" id="speech">psst… whatever you do, don't click me 🙈</div>
 
-  <div class="chick-wrap" id="chickWrap">
-    <svg viewBox="0 0 200 200" aria-hidden="true">
-      <defs>
-        <radialGradient id="bodyGrad" cx="40%" cy="35%" r="70%">
-          <stop offset="0" stop-color="#FFF08A"/>
-          <stop offset=".6" stop-color="#FFD43B"/>
-          <stop offset="1" stop-color="#F5B700"/>
-        </radialGradient>
-        <radialGradient id="irisGrad" cx="50%" cy="38%" r="65%">
-          <stop offset="0" stop-color="#8FDBFF"/>
-          <stop offset=".55" stop-color="#2F8BE0"/>
-          <stop offset="1" stop-color="#1A4C93"/>
-        </radialGradient>
-        <radialGradient id="curlGrad" cx="35%" cy="30%" r="75%">
-          <stop offset="0" stop-color="#A86F47"/>
-          <stop offset=".55" stop-color="#744629"/>
-          <stop offset="1" stop-color="#4E2D1A"/>
-        </radialGradient>
-      </defs>
-      <g id="chick">
-        <ellipse id="shadow" cx="100" cy="190" rx="52" ry="7" fill="rgba(74,44,42,.10)"/>
-        <!-- feet -->
-        <g id="feet" fill="none" stroke="#FF9F1C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M82 170 L80 186 M80 186 L72 190 M80 186 L82 192 M80 186 L88 190"/>
-          <path d="M118 170 L120 186 M120 186 L112 190 M120 186 L118 192 M120 186 L128 190"/>
-        </g>
-        <!-- wings -->
-        <g id="wingGL" transform="rotate(18 40 122)"><ellipse id="wingL" class="wing" cx="40" cy="122" rx="15" ry="27" fill="#F5C518"/></g>
-        <g id="wingGR" transform="rotate(-18 160 122)"><ellipse id="wingR" class="wing" cx="160" cy="122" rx="15" ry="27" fill="#F5C518"/></g>
-        <!-- body -->
-        <ellipse id="bodyShape" cx="100" cy="114" rx="64" ry="64" fill="url(#bodyGrad)"/>
-        <ellipse id="belly" cx="100" cy="146" rx="36" ry="24" fill="#FFF2A8" opacity=".55"/>
-        <ellipse id="shine" cx="50" cy="100" rx="9" ry="5" fill="#fff" opacity="0" transform="rotate(-60 50 100)"/>
-        <!-- brown curls (drawn by the script) -->
-        <g id="hair"></g>
-        <!-- cheeks -->
-        <ellipse class="cheek" cx="64" cy="122" rx="11" ry="7" fill="#FF8FAB"/>
-        <ellipse class="cheek" cx="136" cy="122" rx="11" ry="7" fill="#FF8FAB"/>
-        <!-- eyes -->
-        <g id="eyesOpen">
-          <circle cx="78" cy="104" r="11" fill="#2A1B14"/>
-          <circle cx="122" cy="104" r="11" fill="#2A1B14"/>
-          <g id="pupils">
-            <circle cx="78" cy="104" r="9" fill="url(#irisGrad)"/>
-            <circle cx="122" cy="104" r="9" fill="url(#irisGrad)"/>
-            <path d="M70.5 106.5 Q78 114 85.5 106.5 Q78 110.5 70.5 106.5 Z" fill="#A8E6FF" opacity=".8"/>
-            <path d="M114.5 106.5 Q122 114 129.5 106.5 Q122 110.5 114.5 106.5 Z" fill="#A8E6FF" opacity=".8"/>
-            <circle cx="78" cy="104" r="4.2" fill="#0D1B2E"/>
-            <circle cx="122" cy="104" r="4.2" fill="#0D1B2E"/>
-            <circle cx="74.2" cy="100.2" r="3.4" fill="#fff"/>
-            <circle cx="118.2" cy="100.2" r="3.4" fill="#fff"/>
-            <circle cx="81.4" cy="107.4" r="1.5" fill="#fff"/>
-            <circle cx="125.4" cy="107.4" r="1.5" fill="#fff"/>
+  <div class="duo">
+    <!-- him: blue eyes, brown curls, bow tie -->
+    <div class="chick-wrap" id="chickWrap">
+      <svg viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <radialGradient id="bodyGrad" cx="40%" cy="35%" r="70%">
+            <stop offset="0" stop-color="#FFF08A"/>
+            <stop offset=".6" stop-color="#FFD43B"/>
+            <stop offset="1" stop-color="#F5B700"/>
+          </radialGradient>
+          <radialGradient id="irisGrad" cx="50%" cy="38%" r="65%">
+            <stop offset="0" stop-color="#8FDBFF"/>
+            <stop offset=".55" stop-color="#2F8BE0"/>
+            <stop offset="1" stop-color="#1A4C93"/>
+          </radialGradient>
+          <radialGradient id="curlGrad" cx="35%" cy="30%" r="75%">
+            <stop offset="0" stop-color="#A86F47"/>
+            <stop offset=".55" stop-color="#744629"/>
+            <stop offset="1" stop-color="#4E2D1A"/>
+          </radialGradient>
+        </defs>
+        <g id="chick">
+          <ellipse id="shadow" cx="100" cy="190" rx="52" ry="7" fill="rgba(74,44,42,.10)"/>
+          <g id="feet" fill="none" stroke="#FF9F1C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M82 170 L80 186 M80 186 L72 190 M80 186 L82 192 M80 186 L88 190"/>
+            <path d="M118 170 L120 186 M120 186 L112 190 M120 186 L118 192 M120 186 L128 190"/>
           </g>
-          <g fill="none" stroke="#2A1B14" stroke-width="2.6" stroke-linecap="round">
-            <path d="M68.5 98 L64.6 95.2 M71.4 95 L69 91.6"/>
-            <path d="M131.5 98 L135.4 95.2 M128.6 95 L131 91.6"/>
+          <g id="wingGL" transform="rotate(18 40 122)"><ellipse id="wingL" class="wing" cx="40" cy="122" rx="15" ry="27" fill="#F5C518"/></g>
+          <g id="wingGR" transform="rotate(-18 160 122)"><ellipse id="wingR" class="wing" cx="160" cy="122" rx="15" ry="27" fill="#F5C518"/></g>
+          <ellipse id="bodyShape" cx="100" cy="114" rx="64" ry="64" fill="url(#bodyGrad)"/>
+          <ellipse id="belly" cx="100" cy="146" rx="36" ry="24" fill="#FFF2A8" opacity=".55"/>
+          <ellipse id="shine" cx="50" cy="100" rx="9" ry="5" fill="#fff" opacity="0" transform="rotate(-60 50 100)"/>
+          <g id="bowtie">
+            <path d="M100 148 L85 139 Q81.5 148 85 157 Z" fill="#3B6FD8"/>
+            <path d="M100 148 L115 139 Q118.5 148 115 157 Z" fill="#3B6FD8"/>
+            <path d="M88 143 L94 146.5 M112 143 L106 146.5" stroke="#6E98EE" stroke-width="1.6" stroke-linecap="round"/>
+            <rect x="95.5" y="143.5" width="9" height="9" rx="2.5" fill="#2A54B0"/>
           </g>
+          <!-- short messy curls (drawn by the script) -->
+          <g id="hair"></g>
+          <ellipse class="cheek" cx="64" cy="122" rx="11" ry="7" fill="#FF8FAB"/>
+          <ellipse class="cheek" cx="136" cy="122" rx="11" ry="7" fill="#FF8FAB"/>
+          <g id="eyesOpen">
+            <circle cx="78" cy="104" r="11" fill="#2A1B14"/>
+            <circle cx="122" cy="104" r="11" fill="#2A1B14"/>
+            <g id="pupils">
+              <circle cx="78" cy="104" r="9" fill="url(#irisGrad)"/>
+              <circle cx="122" cy="104" r="9" fill="url(#irisGrad)"/>
+              <path d="M70.5 106.5 Q78 114 85.5 106.5 Q78 110.5 70.5 106.5 Z" fill="#A8E6FF" opacity=".8"/>
+              <path d="M114.5 106.5 Q122 114 129.5 106.5 Q122 110.5 114.5 106.5 Z" fill="#A8E6FF" opacity=".8"/>
+              <circle cx="78" cy="104" r="4.2" fill="#0D1B2E"/>
+              <circle cx="122" cy="104" r="4.2" fill="#0D1B2E"/>
+              <circle cx="74.2" cy="100.2" r="3.4" fill="#fff"/>
+              <circle cx="118.2" cy="100.2" r="3.4" fill="#fff"/>
+              <circle cx="81.4" cy="107.4" r="1.5" fill="#fff"/>
+              <circle cx="125.4" cy="107.4" r="1.5" fill="#fff"/>
+            </g>
+          </g>
+          <g id="eyesHappy" fill="none" stroke="#2A1B14" stroke-width="4.5" stroke-linecap="round">
+            <path d="M70 107 Q78 96 86 107"/>
+            <path d="M114 107 Q122 96 130 107"/>
+          </g>
+          <g fill="none" stroke="#5A3622" stroke-width="4.4" stroke-linecap="round">
+            <path d="M66 88 Q76 82 88 86"/>
+            <path d="M112 86 Q124 82 134 88"/>
+          </g>
+          <path id="beakLow" d="M91 121 L100 131 L109 121 Z" fill="#E8800C"/>
+          <path d="M88 120 Q100 108 112 120 Q100 125 88 120 Z" fill="#FF9F1C"/>
         </g>
-        <g id="eyesHappy" fill="none" stroke="#2A1B14" stroke-width="4.5" stroke-linecap="round">
-          <path d="M70 107 Q78 96 86 107"/>
-          <path d="M114 107 Q122 96 130 107"/>
+      </svg>
+    </div>
+
+    <!-- her: brown eyes, brown bob with bangs, pink bow -->
+    <div class="her-wrap" id="herWrap">
+      <div class="her-say" id="herSay"></div>
+      <svg viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <radialGradient id="herBodyGrad" cx="40%" cy="35%" r="70%">
+            <stop offset="0" stop-color="#FFF3A0"/>
+            <stop offset=".6" stop-color="#FFDA4D"/>
+            <stop offset="1" stop-color="#F7BC12"/>
+          </radialGradient>
+          <radialGradient id="herIris" cx="50%" cy="38%" r="65%">
+            <stop offset="0" stop-color="#E8AD70"/>
+            <stop offset=".55" stop-color="#9A5A2C"/>
+            <stop offset="1" stop-color="#5A3016"/>
+          </radialGradient>
+          <linearGradient id="bobGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#8F5A36"/>
+            <stop offset="1" stop-color="#5E3820"/>
+          </linearGradient>
+        </defs>
+        <g id="herChick">
+          <ellipse cx="100" cy="190" rx="52" ry="7" fill="rgba(74,44,42,.10)"/>
+          <g fill="none" stroke="#FF9F1C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M82 170 L80 186 M80 186 L72 190 M80 186 L82 192 M80 186 L88 190"/>
+            <path d="M118 170 L120 186 M120 186 L112 190 M120 186 L118 192 M120 186 L128 190"/>
+          </g>
+          <g transform="rotate(18 40 122)"><ellipse id="herWingL" class="wing" cx="40" cy="122" rx="15" ry="27" fill="#F7C51A"/></g>
+          <g transform="rotate(-18 160 122)"><ellipse id="herWingR" class="wing" cx="160" cy="122" rx="15" ry="27" fill="#F7C51A"/></g>
+          <ellipse cx="100" cy="114" rx="64" ry="64" fill="url(#herBodyGrad)"/>
+          <ellipse cx="100" cy="146" rx="36" ry="24" fill="#FFF4B0" opacity=".55"/>
+          <!-- bob with blunt bangs -->
+          <path fill="url(#bobGrad)" d="M36 118 C26 64 58 32 100 32 C142 32 174 64 164 118 C160 124 150 124 147 116 C146 104 146 94 144 86 Q133 91 122 86 Q111 91 100 86 Q89 91 78 86 Q67 91 56 86 C54 94 54 104 53 116 C50 124 40 124 36 118 Z"/>
+          <g fill="none" stroke="#4A2A16" stroke-width="1.6" stroke-linecap="round" opacity=".55">
+            <path d="M78 60 Q76 74 78 86"/>
+            <path d="M100 54 Q99 70 100 86"/>
+            <path d="M122 60 Q124 74 122 86"/>
+            <path d="M45 80 Q42 100 45 116"/>
+            <path d="M155 80 Q158 100 155 116"/>
+          </g>
+          <path d="M60 56 Q100 34 140 56" fill="none" stroke="#B9875F" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+          <g transform="rotate(18 140 44)">
+            <path d="M140 44 L125 35 L126 54 Z" fill="#FF7AA0"/>
+            <path d="M140 44 L155 35 L154 54 Z" fill="#FF7AA0"/>
+            <circle cx="140" cy="44" r="5" fill="#FF5C8A"/>
+          </g>
+          <ellipse class="her-cheek" cx="64" cy="124" rx="11" ry="7" fill="#FF8FAB"/>
+          <ellipse class="her-cheek" cx="136" cy="124" rx="11" ry="7" fill="#FF8FAB"/>
+          <g id="herEyesOpen">
+            <circle cx="78" cy="106" r="10.5" fill="#2A1B14"/>
+            <circle cx="122" cy="106" r="10.5" fill="#2A1B14"/>
+            <g id="herPupils">
+              <circle cx="78" cy="106" r="8.6" fill="url(#herIris)"/>
+              <circle cx="122" cy="106" r="8.6" fill="url(#herIris)"/>
+              <path d="M71 108.5 Q78 115.5 85 108.5 Q78 112.5 71 108.5 Z" fill="#F4C99C" opacity=".75"/>
+              <path d="M115 108.5 Q122 115.5 129 108.5 Q122 112.5 115 108.5 Z" fill="#F4C99C" opacity=".75"/>
+              <circle cx="78" cy="106" r="4" fill="#1E120A"/>
+              <circle cx="122" cy="106" r="4" fill="#1E120A"/>
+              <circle cx="74.4" cy="102.4" r="3.2" fill="#fff"/>
+              <circle cx="118.4" cy="102.4" r="3.2" fill="#fff"/>
+              <circle cx="81.2" cy="109.2" r="1.4" fill="#fff"/>
+              <circle cx="125.2" cy="109.2" r="1.4" fill="#fff"/>
+            </g>
+            <g fill="none" stroke="#2A1B14" stroke-width="2.4" stroke-linecap="round">
+              <path d="M68.6 101 L64 98.4 M70.6 98 L67.6 94.4 M73.8 96.4 L72.4 92.2"/>
+              <path d="M131.4 101 L136 98.4 M129.4 98 L132.4 94.4 M126.2 96.4 L127.6 92.2"/>
+            </g>
+          </g>
+          <g id="herEyesHappy" fill="none" stroke="#2A1B14" stroke-width="4.5" stroke-linecap="round">
+            <path d="M69 109 Q78 98 87 109"/>
+            <path d="M113 109 Q122 98 131 109"/>
+            <path d="M67.5 104 L63.5 101.5 M132.5 104 L136.5 101.5" stroke-width="2.4"/>
+          </g>
+          <path id="herBeakLow" d="M91 123 L100 133 L109 123 Z" fill="#E8800C"/>
+          <path d="M88 122 Q100 110 112 122 Q100 127 88 122 Z" fill="#FF9F1C"/>
         </g>
-        <!-- beak -->
-        <path id="beakLow" d="M91 121 L100 131 L109 121 Z" fill="#E8800C"/>
-        <path d="M88 120 Q100 108 112 120 Q100 125 88 120 Z" fill="#FF9F1C"/>
-      </g>
-    </svg>
+      </svg>
+    </div>
   </div>
 
   <button id="btn" type="button">don't click me</button>
@@ -738,7 +905,7 @@
     </div>
 
     <article class="letter" id="letter">
-      <div class="mini-chick" id="miniChick"></div>
+      <div class="mini-duo" id="miniDuo"><span class="mini-love">💕</span></div>
       <p class="date">27 · 10 · 2026</p>
       <h1>Happy 5 months, <span class="her" id="herName"></span></h1>
       <div class="message" id="message"></div>
@@ -765,56 +932,56 @@
 
   const TOTAL = 50;
 
-  // one line per click, the last click pops it
+  // what he says on each click; the last click pops him
   const LINES = [
     "hey!! 😳",
     "i literally said don't click me",
     "rude.",
-    "don't touch the curls.",
+    "she's watching, act cool 😎",
     "wait… do i look bigger to you?",
     "stop it 😤 you're puffing me up",
-    "ok you're stubborn huh",
+    "ok THIS part i like 🥰",
     "hehe that tickles",
     "please… i'm just a little chick 🥺",
     "i just got my curls done btw",
-    "why are you like this",
+    "😳😳😳",
     "i feel… fluffy. TOO fluffy.",
     "i'm calling my mom",
     "she's not answering 😭",
+    "caught it 🥹",
     "my curls are getting frizzy",
-    "my feathers are getting tight",
     "fine… maybe there's something inside me",
     "but you'll never find it",
-    "😛",
+    "boop 🐤",
     "is it windy in here or is it just me",
     "you're so annoying (cute though)",
     "i'm basically a balloon now 🎈",
-    "ok ok ok ok",
+    "🎶 dance break 🎶",
     "do you even know when this ends? 👀",
     "i'm not telling you.",
     "i can't see my feet anymore",
-    "i'm getting dizzy 😵‍💫",
+    "she still hugs me like this?? 🥹",
     "someone really wants you to keep going",
-    "…it was him. he made me do this.",
-    "he said you'd give up. prove him wrong",
+    "…it was me. i made this whole website.",
+    "i bet you'd give up. prove me wrong",
+    "ok that one was worth it 💋",
     "wait no, give up. GIVE UP.",
     "i can see my house from up here",
     "my cheeks are about to explode 😳",
-    "i don't feel so good",
+    "this is for you 🌹",
     "i'm 90% air at this point",
     "you have very strong fingers",
     "is this what love feels like? pressure?",
+    "she says i'm squishy. i am.",
     "ok fine, there IS something inside",
-    "it's from him 💌",
+    "it's from me 💌",
     "but i'm not giving it to you",
     "…unless you keep clicking",
     "NO WAIT I DIDN'T MEAN THAT",
     "i'm serious, i might pop",
     "something is… creaking",
     "STOP. I'M GONNA—",
-    "pls 🥺🎈",
     "i'm about to BURST!!",
-    "this is it…",
     "don't you dare… 💛"
   ];
 
@@ -829,10 +996,12 @@
   const $ = (id) => document.getElementById(id);
   const stage = $("stage"), speech = $("speech"), btn = $("btn"), chickWrap = $("chickWrap");
   const chick = $("chick"), pupils = $("pupils"), hint = $("hint");
+  const herWrap = $("herWrap"), herChick = $("herChick"), herPupils = $("herPupils"), herSay = $("herSay");
   const reveal = $("reveal"), envelope = $("envelope"), flash = $("flash");
 
   let clicks = 0;
   let done = false;
+  let grow = 1;
 
   // ---------- particles ----------
   const canvas = $("fx");
@@ -852,6 +1021,7 @@
 
   const CONFETTI = ["#FFD43B", "#FF5C8A", "#FFB5C5", "#FFFFFF", "#FF9F1C", "#B794F6", "#7FD8FF"];
   const FLUFF = ["#FFD43B", "#FFE58A", "#F5C518", "#FFF2A8"];
+  const HEARTS = ["#FF5C8A", "#FF8FAB", "#FFB5C5"];
   const rand = (a, b) => a + Math.random() * (b - a);
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
   const angleDiff = (a, b) => Math.atan2(Math.sin(a - b), Math.cos(a - b));
@@ -898,6 +1068,11 @@
         ctx.beginPath();
         ctx.arc(0, 0, r, 0, Math.PI * 2);
         ctx.fill();
+      } else if (p.shape === "text") {
+        ctx.font = `${p.size}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(p.text, 0, 0);
       } else {
         ctx.scale(1, Math.cos(p.life / 6 + p.flip));
         ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
@@ -936,7 +1111,23 @@
     }
   }
 
-  // fluff and a few curls fly off when it pops
+  // little hearts floating up from a spot
+  function heartsAt(x, y, n) {
+    for (let i = 0; i < n; i++) {
+      spawn({
+        x: x + rand(-12, 12), y: y + rand(-6, 6), vx: rand(-1.6, 1.6), vy: rand(-3.4, -1.4),
+        size: rand(10, 20), color: pick(HEARTS), shape: "heart",
+        g: -.01, drag: .985, max: rand(60, 90), rot: rand(-.3, .3), vr: rand(-.03, .03)
+      });
+    }
+  }
+
+  // an emoji that floats up from a spot
+  function emojiAt(x, y, text, size = 26, vy = -.6) {
+    spawn({ x, y, vx: 0, vy, g: 0, drag: 1, size, shape: "text", text, color: "#FF5C8A", max: 70, rot: rand(-.2, .2), vr: 0 });
+  }
+
+  // fluff and a few curls fly off when he pops
   function featherBurst(x, y, spread) {
     for (let i = 0; i < 56; i++) {
       const a = rand(0, Math.PI * 2), sp = rand(4, 14);
@@ -971,7 +1162,7 @@
   }
 
   // ---------- stage 1 ----------
-  // cartoon curls: a dark cap, round curls with a swirl and a shine, a spring curl on top and two bouncy ones at the sides
+  // his short messy curls: a dark cap, round curls with a swirl and a shine, one spring curl on top
   (function drawHair() {
     const NS = "http://www.w3.org/2000/svg";
     const hair = $("hair");
@@ -994,19 +1185,16 @@
       add("path", { d: swirl(cx + r * .05, cy + r * .05, r), fill: "none", stroke: "#3B2213", "stroke-width": (r * .15).toFixed(1), "stroke-linecap": "round", "stroke-linejoin": "round" });
       add("path", { d: `M${cx - r * .62} ${cy - r * .18} A${r * .66} ${r * .66} 0 0 1 ${cx - r * .12} ${cy - r * .64}`, fill: "none", stroke: "#D9A77A", "stroke-width": (r * .13).toFixed(1), "stroke-linecap": "round", opacity: ".8" });
     };
-    const spring = (d) => add("path", { d, fill: "none", stroke: "#6B4127", "stroke-width": 4.5, "stroke-linecap": "round", "stroke-linejoin": "round" });
 
-    spring("M50 80 q-8 5 0 9 q8 4 0 9 q-8 4 0 9");
-    spring("M150 80 q8 5 0 9 q-8 4 0 9 q8 4 0 9");
-    add("path", { d: "M44 86 C40 52 64 34 100 34 C136 34 160 52 156 86 C148 76 134 72 120 74 C110 66 90 66 80 74 C66 72 52 76 44 86 Z", fill: "#4A2B19" });
-    spring("M98 28 C96 14 110 6 116 14 C122 22 110 28 107 21 C104 15 112 12 114 17");
-    // outer ring, then the middle, then the fringe on top
+    add("path", { d: "M50 80 C46 50 70 32 100 32 C130 32 154 50 150 80 C142 72 128 70 116 74 C108 66 92 66 84 74 C72 70 58 72 50 80 Z", fill: "#4A2B19" });
+    add("path", { d: "M98 26 C96 12 110 4 116 12 C122 20 110 26 107 19 C104 13 112 10 114 15", fill: "none", stroke: "#6B4127", "stroke-width": 4.5, "stroke-linecap": "round", "stroke-linejoin": "round" });
     for (const [x, y, r] of [
-      [50, 78, 12], [56, 60, 13], [70, 46, 14], [88, 38, 14], [106, 36, 14], [124, 40, 14], [139, 50, 13], [147, 64, 12], [150, 80, 11],
-      [80, 54, 12], [100, 50, 12], [120, 54, 12],
-      [64, 74, 10], [81, 70, 10.5], [100, 68, 10.5], [119, 70, 10.5], [136, 74, 10]
+      [54, 70, 11], [60, 54, 12.5], [74, 42, 13.5], [92, 35, 14], [110, 34, 14], [127, 40, 13.5], [141, 52, 12.5], [147, 68, 11],
+      [82, 54, 11.5], [101, 50, 12], [120, 54, 11.5],
+      [66, 72, 9.5], [84, 69, 10], [102, 67, 10], [120, 69, 10], [136, 72, 9.5]
     ]) curl(x, y, r);
   })();
+
   for (let i = 0; i < 14; i++) {
     const h = document.createElement("span");
     h.className = "floaty";
@@ -1025,6 +1213,16 @@
     speech.classList.add("pop");
   }
 
+  let herSayTimer;
+  function herSays(text, ms = 1800) {
+    herSay.textContent = text;
+    herSay.classList.remove("show");
+    void herSay.offsetWidth;
+    herSay.classList.add("show");
+    clearTimeout(herSayTimer);
+    herSayTimer = setTimeout(() => herSay.classList.remove("show"), ms);
+  }
+
   let happyTimer;
   function react() {
     chick.classList.remove("squish", "tight");
@@ -1037,11 +1235,23 @@
     }, 450);
   }
 
-  // How big the chick may get before it would leave the screen.
+  // How big he may get before he would leave the screen.
   function maxGrow() {
     const r = chickWrap.getBoundingClientRect();
     const base = chickWrap.offsetWidth;
     return Math.max(1.3, Math.min(2.4, (innerWidth * 1.05) / base, (r.bottom - 8) / base));
+  }
+
+  // Side by side while there's room; once he's too big she stands in front of his round belly.
+  function layout() {
+    const base = chickWrap.offsetWidth, herW = herWrap.offsetWidth, gap = 4;
+    const hisW = base * grow, half = innerWidth / 2;
+    const hx = Math.min(0, Math.max(-(gap + herW) / 2, hisW / 2 + 6 - half));
+    const sx = Math.min(hx + hisW / 2 + gap + herW / 2, half - herW / 2 - 6);
+    stage.style.setProperty("--hx", hx + "px");
+    stage.style.setProperty("--sx", sx + "px");
+    const lift = Math.min((grow - 1) * chickWrap.offsetHeight * .6, speech.offsetTop - 12);
+    speech.style.translate = `${hx}px ${-Math.max(0, lift)}px`;
   }
 
   // t goes 0 → 1: the body swells, the curls stretch with it, wings and feet get pushed out, a balloon shine appears.
@@ -1054,6 +1264,7 @@
     set("wingGR", { transform: `translate(${20 * t} ${-6 * t}) rotate(${-18 - 40 * t} 160 122)` });
     set("feet", { transform: `translate(0 ${10 * t})` });
     set("hair", { transform: `translate(0 ${-3 * t}) translate(100 114) scale(${1 + .31 * t} ${1 + .23 * t}) translate(-100 -114)` });
+    set("bowtie", { transform: `translate(0 ${12 * t})` });
     set("shadow", { rx: 52 + 26 * t, cy: 190 + 8 * t });
     chickWrap.querySelectorAll(".cheek").forEach((c, i) => {
       c.setAttribute("rx", 11 + 6 * t);
@@ -1064,12 +1275,195 @@
 
   function inflate(t) {
     shapeInflate(t);
-    const grow = 1 + (maxGrow() - 1) * t;
+    grow = 1 + (maxGrow() - 1) * t;
     chickWrap.style.setProperty("--grow", grow);
     chick.style.setProperty("--amp", (t * 2).toFixed(2) + "px");
-    // keep the bubble above the chick's eyes as it swells
-    const lift = Math.min((grow - 1) * chickWrap.offsetHeight * .6, speech.offsetTop - 12);
-    speech.style.translate = `0 ${-Math.max(0, lift)}px`;
+    layout();
+  }
+
+  // ---------- the two of them: little surprises while she clicks ----------
+  const setLove = (on) => { chick.classList.toggle("love", on); herChick.classList.toggle("love", on); };
+  const box = () => ({ me: chickWrap.getBoundingClientRect(), her: herWrap.getBoundingClientRect() });
+  // a point on a chick, in its own 200×200 drawing units
+  const at = (r, x, y) => ({ x: r.left + r.width * x / 200, y: r.top + r.height * y / 200 });
+
+  // she hops over by (dx, dy), stays a moment, and hops back; arrives at ~32% of the way
+  function herHop(dx, dy, ms) {
+    return herWrap.animate([
+      { translate: "0px 0px" },
+      { translate: `${dx * .5}px ${Math.min(dy, 0) * .6 - 28}px`, offset: .18 },
+      { translate: `${dx}px ${dy}px`, offset: .32 },
+      { translate: `${dx}px ${dy}px`, offset: .78 },
+      { translate: "0px 0px" }
+    ], { duration: ms, easing: "ease-in-out" });
+  }
+
+  // he leans toward her (or away, with a negative angle)
+  function lean(deg, ms) {
+    return chickWrap.animate([
+      { rotate: "0deg" }, { rotate: `${deg}deg`, offset: .32 }, { rotate: `${deg}deg`, offset: .78 }, { rotate: "0deg" }
+    ], { duration: ms, easing: "ease-in-out" });
+  }
+
+  // something flies from one spot to another in an arc
+  function toss(from, to, opts, frames = 45) {
+    const g = .2;
+    spawn(Object.assign({
+      x: from.x, y: from.y, vx: (to.x - from.x) / frames, vy: (to.y - from.y) / frames - g * frames / 2,
+      g, drag: 1, max: frames, rot: 0, vr: 0
+    }, opts));
+    return frames * 16.7;
+  }
+
+  const MOMENTS = {
+    4: { line: "hi cutie 👋", run() {
+      $("herWingL").animate([
+        { transform: "rotate(0deg)" }, { transform: "rotate(110deg)" }, { transform: "rotate(70deg)" },
+        { transform: "rotate(110deg)" }, { transform: "rotate(70deg)" }, { transform: "rotate(0deg)" }
+      ], { duration: 1300, easing: "ease-in-out" });
+      const { her } = box();
+      setTimeout(() => heartsAt(her.left + her.width * .2, her.top + her.height * .3, 4), 400);
+      return 1400;
+    } },
+
+    7: { line: "come here 🤗", run: hug },
+    27: { line: "my squishy boy 🥰", run: hug },
+
+    11: { line: "mwah 💋", run: () => kiss(false) },
+    31: { line: "MWAH 💋💋", run: () => kiss(true) },
+
+    15: { line: "catch! 😘", run() {
+      const { me, her } = box();
+      herWrap.animate([{ rotate: "0deg" }, { rotate: "-10deg", offset: .4 }, { rotate: "0deg" }], { duration: 700 });
+      herChick.classList.add("love");
+      setTimeout(() => {
+        const to = at(me, 136, 118);
+        const flight = toss(at(her, 90, 124), to, { size: 24, color: "#FF5C8A", shape: "heart" });
+        setTimeout(() => { heartsAt(to.x, to.y, 10); setLove(true); }, flight);
+      }, 350);
+      setTimeout(() => setLove(false), 2100);
+      return 2200;
+    } },
+
+    19: { line: "boop!", run() {
+      const { me, her } = box();
+      const hisBeak = at(me, 106, 122), herBeak = at(her, 94, 124);
+      herHop(hisBeak.x - herBeak.x + 4, hisBeak.y - herBeak.y, 1500);
+      lean(5, 1500);
+      setTimeout(() => { confetti(hisBeak.x, hisBeak.y, 16, 5); setLove(true); }, 500);
+      setTimeout(() => setLove(false), 1200);
+      return 1600;
+    } },
+
+    23: { line: "dance with me 💃", run() {
+      setLove(true);
+      for (let i = 0; i < 4; i++) {
+        setTimeout(() => {
+          const side = i % 2 ? 1 : -1;
+          herWrap.animate([{ translate: "0 0", rotate: "0deg" }, { translate: "0 -26px", rotate: `${10 * side}deg` }, { translate: "0 0", rotate: "0deg" }], { duration: 380, easing: "ease-out" });
+          chickWrap.animate([{ rotate: "0deg" }, { rotate: `${-5 * side}deg` }, { rotate: "0deg" }], { duration: 380, easing: "ease-out" });
+          const { me, her } = box();
+          emojiAt(rand(me.left, her.right), Math.min(me.top, her.top) + 10, pick(["♪", "♫", "🎶"]), 24, -1.4);
+        }, i * 400);
+      }
+      setTimeout(() => setLove(false), 1700);
+      return 1800;
+    } },
+
+    35: { line: "for me?? 🥺", sayAt: 800, run() {
+      const { me, her } = box();
+      const to = at(her, 100, 60);
+      const flight = toss(at(me, 165, 118), to, { size: 34, shape: "text", text: "🌹", vr: .08 }, 48);
+      setTimeout(() => { heartsAt(to.x, to.y, 8); herChick.classList.add("love"); }, flight);
+      setTimeout(() => herChick.classList.remove("love"), 2200);
+      return 2300;
+    } },
+
+    39: { line: "there there 🫶", run() {
+      const { me, her } = box();
+      const belly = at(me, 150, 150);
+      herHop(Math.min(0, belly.x - (her.left + her.width * .3)), 0, 2200);
+      setTimeout(() => {
+        herChick.classList.add("love");
+        chick.classList.add("love");
+        $("herWingL").animate([{ transform: "rotate(40deg)" }, { transform: "rotate(85deg)" }], { duration: 200, iterations: 6, direction: "alternate" });
+      }, 650);
+      setTimeout(() => setLove(false), 1900);
+      return 2300;
+    } },
+
+    43: { line: "🫶", run() {
+      const { me, her } = box();
+      lean(6, 2000);
+      herWrap.animate([{ rotate: "0deg" }, { rotate: "-8deg", offset: .32 }, { rotate: "-8deg", offset: .78 }, { rotate: "0deg" }], { duration: 2000, easing: "ease-in-out" });
+      setTimeout(() => {
+        setLove(true);
+        const heart = document.createElement("div");
+        heart.className = "big-heart";
+        heart.textContent = "💗";
+        heart.style.left = (at(me, 170, 0).x + at(her, 30, 0).x) / 2 + "px";
+        heart.style.top = Math.min(at(me, 0, 60).y, her.top) - 20 + "px";
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 2000);
+      }, 500);
+      setTimeout(() => setLove(false), 1900);
+      return 2100;
+    } },
+
+    47: { line: "babe you're gonna pop!! 😰", run() {
+      herWrap.animate([
+        { rotate: "0deg" }, { rotate: "-9deg" }, { rotate: "9deg" }, { rotate: "-9deg" }, { rotate: "9deg" }, { rotate: "0deg" }
+      ], { duration: 900 });
+      const { her } = box();
+      emojiAt(her.right - 10, her.top + 16, "💦", 22, -.3);
+      return 1100;
+    } }
+  };
+
+  function hug() {
+    const { me, her } = box();
+    const flank = at(me, 160, 0).x;
+    const ms = 2100;
+    herHop(Math.min(0, flank - (her.left + her.width * .32)), 0, ms);
+    lean(6, ms);
+    setTimeout(() => {
+      setLove(true);
+      herWrap.classList.add("hugging");
+      const { me: m, her: h } = box();
+      heartsAt((m.right + h.left) / 2, Math.min(m.top + m.height * .3, h.top), 8);
+    }, 650);
+    setTimeout(() => { setLove(false); herWrap.classList.remove("hugging"); }, 1650);
+    return ms;
+  }
+
+  function kiss(big) {
+    const { me, her } = box();
+    const cheek = at(me, 138, 120), beak = at(her, 100, 126);
+    const ms = 1900;
+    herHop(cheek.x - beak.x + 6, cheek.y - beak.y, ms);
+    lean(6, ms);
+    setTimeout(() => {
+      setLove(true);
+      chickWrap.style.setProperty("--blush-amt", 1);
+      emojiAt(cheek.x, cheek.y - 4, "💋", big ? 34 : 24, -.3);
+      heartsAt(cheek.x, cheek.y - 14, big ? 18 : 8);
+      if (big) confetti(cheek.x, cheek.y, 30, 7);
+    }, 600);
+    setTimeout(() => setLove(false), 1600);
+    return ms;
+  }
+
+  // moments queue up so none is skipped when she clicks fast
+  const queue = [];
+  let busy = false;
+  function moment(n) {
+    if (MOMENTS[n]) queue.push(MOMENTS[n]);
+    if (busy || done || !queue.length) return;
+    const m = queue.shift();
+    busy = true;
+    setTimeout(() => !done && herSays(m.line), m.sayAt || 0);
+    const ms = m.run();
+    setTimeout(() => { busy = false; moment(); }, ms + 80);
   }
 
   function poke(e) {
@@ -1098,31 +1492,52 @@
     if (navigator.vibrate) navigator.vibrate(12);
 
     if (clicks >= TOTAL) finale();
-    else say(LINES[clicks - 1]);
+    else {
+      say(LINES[clicks - 1]);
+      moment(clicks);
+    }
   }
 
   btn.addEventListener("click", poke);
   chickWrap.addEventListener("click", poke);
+  herWrap.addEventListener("click", poke);
 
   addEventListener("pointermove", (e) => {
     if (done) return;
-    const r = chickWrap.getBoundingClientRect();
-    const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height * .4);
-    const d = Math.hypot(dx, dy) || 1;
-    const m = Math.min(1.6, d / 60);
-    pupils.setAttribute("transform", `translate(${(dx / d) * m} ${(dy / d) * m})`);
+    for (const [wrap, eyes] of [[chickWrap, pupils], [herWrap, herPupils]]) {
+      const r = wrap.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height * .5);
+      const d = Math.hypot(dx, dy) || 1;
+      const m = Math.min(1.6, d / 60);
+      eyes.setAttribute("transform", `translate(${(dx / d) * m} ${(dy / d) * m})`);
+    }
   });
+
+  addEventListener("resize", () => { if (!done) layout(); });
+  layout();
 
   // ---------- the big moment ----------
   function finale() {
     done = true;
+    queue.length = 0;
     btn.disabled = true;
     btn.textContent = "uh oh…";
     say("i'm gonna… i'm gonna… 😱");
     clearTimeout(happyTimer);
-    chick.classList.remove("squish", "tight");
+    chick.classList.remove("squish", "tight", "love");
     chick.classList.add("happy");
+    chickWrap.getAnimations().forEach((a) => a.cancel());
     chickWrap.classList.add("charge");
+
+    // she runs under him to catch him
+    herWrap.getAnimations().forEach((a) => a.cancel());
+    herChick.classList.remove("love");
+    herSays("babe?? 😳", 1300);
+    const { me, her } = box();
+    herWrap.animate([
+      { translate: "0px 0px" },
+      { translate: `${(me.left + me.width / 2) - (her.left + her.width / 2) + me.width * .1}px -6px` }
+    ], { duration: 900, easing: "ease-in-out", fill: "forwards" });
 
     setTimeout(() => {
       const r = chickWrap.getBoundingClientRect();
@@ -1156,13 +1571,15 @@
     }, 1300);
   }
 
-  // Deflate like a let-go balloon: zip around the screen leaking air, shrink, then float up and away.
+  // Deflate like a let-go balloon with her hanging on to his feet: zip around leaking air, shrink, then float up and away.
   function flyAway(r, onGone) {
     const W = chickWrap.offsetWidth;
     let x = r.left + r.width / 2, y = r.top + r.height / 2;
     let vx = 0, vy = 0, heading = -Math.PI / 2 + rand(-.8, .8), turn = 0, rot = 0;
     const s0 = r.width / W, sEnd = .45, AIR = 2.6;
     const place = (s) => { chickWrap.style.transform = `translate(${x - W / 2}px, ${y - W / 2}px) rotate(${rot}rad) scale(${s})`; };
+    // she keeps her own size while he shrinks around her
+    const holdOn = (s) => { herWrap.style.scale = (Math.max(.55, Math.min(1, s * .9)) / s).toFixed(3); };
 
     chickWrap.classList.remove("charge");
     chick.classList.add("flying");
@@ -1170,6 +1587,14 @@
     Object.assign(chickWrap.style, { position: "fixed", left: "0", top: "0", margin: "0", zIndex: 56, transition: "none", transformOrigin: "50% 50%" });
     place(s0);
     document.body.appendChild(chickWrap);
+
+    herWrap.getAnimations().forEach((a) => a.cancel());
+    herSay.classList.remove("show");
+    Object.assign(herWrap.style, { left: "50%", top: "86%", bottom: "auto", transform: "translateX(-50%)", transition: "none", transformOrigin: "50% 0" });
+    herWrap.classList.add("dangle");
+    herChick.classList.add("love");
+    holdOn(s0);
+    chickWrap.appendChild(herWrap);
 
     const t0 = performance.now();
     let frames = 0;
@@ -1190,7 +1615,7 @@
         vy += Math.sin(heading) * thrust;
         if (Math.random() < .85) puff(x - Math.cos(heading) * half * .9, y - Math.sin(heading) * half * .9, heading);
       } else {
-        // out of air: drift up and away
+        // out of air: drift up and away together
         vy -= .8;
         vx += Math.sin(now / 150) * .3;
       }
@@ -1199,10 +1624,10 @@
       rot += angleDiff((air > 0 ? heading : -Math.PI / 2) + Math.PI / 2, rot) * .25;
 
       place(s);
-      // the fluffy filters are heavy, so reshape every other frame
+      holdOn(s);
       if (++frames % 2 === 0) shapeInflate(air);
 
-      if (y < -W * s) {
+      if (y < -W * s - 200) {
         chickWrap.style.visibility = "hidden";
         onGone();
         return;
@@ -1226,12 +1651,15 @@
     stars.appendChild(s);
   }
 
-  // the letter
+  // the letter, with the two of them peeking over it
   $("herName").textContent = HER_NAME;
   $("sign").textContent = SIGNATURE;
-  const mini = chickWrap.querySelector("svg").cloneNode(true);
-  mini.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
-  $("miniChick").appendChild(mini);
+  for (const [src, cls] of [[chickWrap, "mini-him"], [herWrap, "mini-her"]]) {
+    const svg = src.querySelector("svg").cloneNode(true);
+    svg.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+    svg.classList.add(cls);
+    $("miniDuo").appendChild(svg);
+  }
 
   envelope.addEventListener("click", () => {
     if (!reveal.classList.contains("stage2") || envelope.classList.contains("open")) return;
