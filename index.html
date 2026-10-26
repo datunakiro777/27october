@@ -174,8 +174,8 @@
   #chick.happy #eyesOpen { display: none; }
   #chick.happy #eyesHappy { display: inline; }
 
-  #tongue { transform-box: fill-box; transform-origin: 50% 0; transition: transform .15s; }
-  #chick.happy #tongue { transform: scaleY(1.35) rotate(8deg); }
+  #beakLow { transform-box: fill-box; transform-origin: 50% 0; transition: transform .12s; }
+  #chick.happy #beakLow { transform: translateY(3px) scaleY(1.3); }
 
   .wing { transform-box: fill-box; transition: transform .15s; }
   #wingL { transform-origin: 100% 20%; }
@@ -183,7 +183,7 @@
   #chick.happy #wingL { transform: rotate(35deg); }
   #chick.happy #wingR { transform: rotate(-35deg); }
 
-  .cheek { opacity: var(--blush-amt, .25); transition: opacity .3s; }
+  .cheek { opacity: var(--blush-amt, .4); transition: opacity .3s; }
 
   .chick-wrap.charge #chick { animation: shake .08s linear infinite; }
   .chick-wrap.charge { animation: charge 1.3s ease-in forwards; }
@@ -634,20 +634,10 @@
   <div class="chick-wrap" id="chickWrap">
     <svg viewBox="0 0 200 200" aria-hidden="true">
       <defs>
-        <radialGradient id="bodyGrad" cx="40%" cy="28%" r="78%">
-          <stop offset="0" stop-color="#FFF3CF"/>
-          <stop offset=".45" stop-color="#F6D88E"/>
-          <stop offset=".8" stop-color="#E6B861"/>
-          <stop offset="1" stop-color="#CC9443"/>
-        </radialGradient>
-        <radialGradient id="headGrad" cx="42%" cy="42%" r="68%">
-          <stop offset="0" stop-color="#FFF5D8"/>
-          <stop offset=".6" stop-color="#F4D488"/>
-          <stop offset="1" stop-color="#D6A350"/>
-        </radialGradient>
-        <radialGradient id="wingGrad" cx="50%" cy="25%" r="85%">
-          <stop offset="0" stop-color="#F0CC7E"/>
-          <stop offset="1" stop-color="#C38A3B"/>
+        <radialGradient id="bodyGrad" cx="40%" cy="35%" r="70%">
+          <stop offset="0" stop-color="#FFF08A"/>
+          <stop offset=".6" stop-color="#FFD43B"/>
+          <stop offset="1" stop-color="#F5B700"/>
         </radialGradient>
         <radialGradient id="irisGrad" cx="42%" cy="40%" r="62%">
           <stop offset="0" stop-color="#E6F7FF"/>
@@ -656,27 +646,9 @@
           <stop offset="1" stop-color="#173D63"/>
         </radialGradient>
         <linearGradient id="scleraGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#D9D2CA"/>
+          <stop offset="0" stop-color="#E2DCD2"/>
           <stop offset=".5" stop-color="#FFFFFF"/>
         </linearGradient>
-        <linearGradient id="beakGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#F8DFC2"/>
-          <stop offset=".55" stop-color="#E4B089"/>
-          <stop offset="1" stop-color="#C2845D"/>
-        </linearGradient>
-        <linearGradient id="tongueGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#D4607A"/>
-          <stop offset=".35" stop-color="#EF88A0"/>
-          <stop offset="1" stop-color="#F8B3C3"/>
-        </linearGradient>
-        <!-- soft lumpy down: big gentle wobble + fine fuzz -->
-        <filter id="fluff" x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="1" seed="4" result="lump"/>
-          <feDisplacementMap in="SourceGraphic" in2="lump" scale="9" xChannelSelector="R" yChannelSelector="G" result="lumpy"/>
-          <feTurbulence type="fractalNoise" baseFrequency=".5" numOctaves="2" seed="9" result="fine"/>
-          <feDisplacementMap in="lumpy" in2="fine" scale="4.5" xChannelSelector="R" yChannelSelector="G" result="fuzzy"/>
-          <feGaussianBlur in="fuzzy" stdDeviation=".45"/>
-        </filter>
         <filter id="frizz" x="-15%" y="-15%" width="130%" height="130%">
           <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="1" seed="3" result="noise"/>
           <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
@@ -686,70 +658,63 @@
         </filter>
       </defs>
       <g id="chick">
-        <ellipse id="shadow" cx="100" cy="195" rx="56" ry="6" fill="#4A2C2A" opacity=".16" filter="url(#soft)"/>
+        <ellipse id="shadow" cx="100" cy="190" rx="52" ry="7" fill="rgba(74,44,42,.10)"/>
         <!-- feet -->
-        <g id="feet" fill="none" stroke="#E39A50" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M86 180 L84 192 M84 192 L77 195 M84 192 L85 197.5 M84 192 L91 195"/>
-          <path d="M114 180 L116 192 M116 192 L109 195 M116 192 L115 197.5 M116 192 L123 195"/>
+        <g id="feet" fill="none" stroke="#FF9F1C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M82 170 L80 186 M80 186 L72 190 M80 186 L82 192 M80 186 L88 190"/>
+          <path d="M118 170 L120 186 M120 186 L112 190 M120 186 L118 192 M120 186 L128 190"/>
         </g>
-        <!-- fluffy down -->
-        <g filter="url(#fluff)">
-          <g id="wingGL" transform="rotate(18 44 140)"><ellipse id="wingL" class="wing" cx="44" cy="140" rx="13" ry="24" fill="url(#wingGrad)"/></g>
-          <g id="wingGR" transform="rotate(-18 156 140)"><ellipse id="wingR" class="wing" cx="156" cy="140" rx="13" ry="24" fill="url(#wingGrad)"/></g>
-          <ellipse id="bodyShape" cx="100" cy="140" rx="62" ry="50" fill="url(#bodyGrad)"/>
-          <ellipse id="belly" cx="100" cy="152" rx="38" ry="26" fill="#FFF6DC" opacity=".6" filter="url(#soft)"/>
-          <ellipse id="neckShade" cx="100" cy="119" rx="34" ry="9" fill="#AE7629" opacity=".35" filter="url(#soft)"/>
-          <circle id="headShape" cx="100" cy="82" r="40" fill="url(#headGrad)"/>
-        </g>
-        <ellipse id="shine" cx="62" cy="122" rx="12" ry="7" fill="#fff" opacity="0" transform="rotate(-35 62 122)"/>
+        <!-- wings -->
+        <g id="wingGL" transform="rotate(18 40 122)"><ellipse id="wingL" class="wing" cx="40" cy="122" rx="15" ry="27" fill="#F5C518"/></g>
+        <g id="wingGR" transform="rotate(-18 160 122)"><ellipse id="wingR" class="wing" cx="160" cy="122" rx="15" ry="27" fill="#F5C518"/></g>
+        <!-- body -->
+        <ellipse id="bodyShape" cx="100" cy="114" rx="64" ry="64" fill="url(#bodyGrad)"/>
+        <ellipse id="belly" cx="100" cy="146" rx="36" ry="24" fill="#FFF2A8" opacity=".55"/>
+        <ellipse id="shine" cx="58" cy="118" rx="12" ry="7" fill="#fff" opacity="0" transform="rotate(-35 58 118)"/>
         <!-- curly hair: ringlets are drawn by the script -->
         <g id="hair">
-          <ellipse cx="100" cy="77" rx="36" ry="9" fill="#6E4413" opacity=".4" filter="url(#soft)"/>
+          <ellipse cx="100" cy="88" rx="38" ry="8" fill="#B07A00" opacity=".35" filter="url(#soft)"/>
           <g id="curls" filter="url(#frizz)"></g>
         </g>
         <g id="face">
-          <ellipse class="cheek" cx="71" cy="102" rx="8" ry="5" fill="#F39A86" filter="url(#soft)"/>
-          <ellipse class="cheek" cx="129" cy="102" rx="8" ry="5" fill="#F39A86" filter="url(#soft)"/>
+          <!-- cheeks -->
+          <ellipse class="cheek" cx="64" cy="124" rx="11" ry="7" fill="#FF8FAB"/>
+          <ellipse class="cheek" cx="136" cy="124" rx="11" ry="7" fill="#FF8FAB"/>
+          <!-- blue eyes -->
           <g id="eyesOpen">
-            <ellipse cx="84" cy="90" rx="9.6" ry="8.4" fill="url(#scleraGrad)"/>
-            <ellipse cx="116" cy="90" rx="9.6" ry="8.4" fill="url(#scleraGrad)"/>
+            <ellipse cx="78" cy="105" rx="11" ry="9.6" fill="url(#scleraGrad)"/>
+            <ellipse cx="122" cy="105" rx="11" ry="9.6" fill="url(#scleraGrad)"/>
             <g id="pupils">
-              <circle cx="84" cy="90.5" r="6.4" fill="url(#irisGrad)" stroke="#173D63" stroke-width=".8"/>
-              <circle cx="116" cy="90.5" r="6.4" fill="url(#irisGrad)" stroke="#173D63" stroke-width=".8"/>
-              <circle cx="84" cy="90.5" r="2.8" fill="#0B0A0C"/>
-              <circle cx="116" cy="90.5" r="2.8" fill="#0B0A0C"/>
-              <circle cx="81.8" cy="88.2" r="1.8" fill="#fff"/>
-              <circle cx="113.8" cy="88.2" r="1.8" fill="#fff"/>
-              <circle cx="86.2" cy="92.6" r=".8" fill="#fff" opacity=".85"/>
-              <circle cx="118.2" cy="92.6" r=".8" fill="#fff" opacity=".85"/>
+              <circle cx="78" cy="105.5" r="7.2" fill="url(#irisGrad)" stroke="#173D63" stroke-width=".8"/>
+              <circle cx="122" cy="105.5" r="7.2" fill="url(#irisGrad)" stroke="#173D63" stroke-width=".8"/>
+              <circle cx="78" cy="105.5" r="3.1" fill="#0B0A0C"/>
+              <circle cx="122" cy="105.5" r="3.1" fill="#0B0A0C"/>
+              <circle cx="75.6" cy="103.3" r="2" fill="#fff"/>
+              <circle cx="119.6" cy="103.3" r="2" fill="#fff"/>
+              <circle cx="80.4" cy="107.6" r=".9" fill="#fff" opacity=".85"/>
+              <circle cx="124.4" cy="107.6" r=".9" fill="#fff" opacity=".85"/>
             </g>
-            <!-- heavy lids: that unimpressed look -->
-            <path d="M73.4 89.5 Q84 74 94.6 89.5 Q84 82.2 73.4 89.5 Z" fill="#EFCF88"/>
-            <path d="M105.4 89.5 Q116 74 126.6 89.5 Q116 82.2 105.4 89.5 Z" fill="#EFCF88"/>
-            <g fill="none" stroke-linecap="round">
-              <path d="M75.5 84.2 Q84 77.5 92.8 83.6" stroke="#B98838" stroke-width="1" opacity=".55"/>
-              <path d="M107.2 83.6 Q116 77.5 124.5 84.2" stroke="#B98838" stroke-width="1" opacity=".55"/>
-              <path d="M74 89.4 Q84 81.8 94 89.4 L96.4 87.6" stroke="#2B1A10" stroke-width="2.6" stroke-linejoin="round"/>
-              <path d="M126 89.4 Q116 81.8 106 89.4 L103.6 87.6" stroke="#2B1A10" stroke-width="2.6" stroke-linejoin="round"/>
-              <path d="M76.8 95.6 Q84 99.6 91.2 95.6" stroke="#B98838" stroke-width="1" opacity=".55"/>
-              <path d="M108.8 95.6 Q116 99.6 123.2 95.6" stroke="#B98838" stroke-width="1" opacity=".55"/>
+            <ellipse cx="78" cy="105" rx="11" ry="9.6" fill="none" stroke="#2B1A10" stroke-width="1.4"/>
+            <ellipse cx="122" cy="105" rx="11" ry="9.6" fill="none" stroke="#2B1A10" stroke-width="1.4"/>
+            <!-- heavy lids, like the photo -->
+            <path d="M65.8 104.4 Q78 86.6 90.2 104.4 Q78 96 65.8 104.4 Z" fill="#FFE46E"/>
+            <path d="M109.8 104.4 Q122 86.6 134.2 104.4 Q122 96 109.8 104.4 Z" fill="#FFE46E"/>
+            <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M67 97.2 Q78 89.3 88.7 96.4" stroke="#E0A800" stroke-width="1.1" opacity=".6"/>
+              <path d="M133 97.2 Q122 89.3 111.3 96.4" stroke="#E0A800" stroke-width="1.1" opacity=".6"/>
+              <path d="M66.5 104.3 Q78 95.6 89.5 104.3 L92.2 102.2" stroke="#2B1A10" stroke-width="2.8"/>
+              <path d="M133.5 104.3 Q122 95.6 110.5 104.3 L107.8 102.2" stroke="#2B1A10" stroke-width="2.8"/>
+              <path d="M69.7 111.4 Q78 116.7 86.3 111.4" stroke="#E0A800" stroke-width="1.1" opacity=".55"/>
+              <path d="M130.3 111.4 Q122 116.7 113.7 111.4" stroke="#E0A800" stroke-width="1.1" opacity=".55"/>
             </g>
           </g>
-          <g id="eyesHappy" fill="none" stroke="#2B1A10" stroke-width="3.4" stroke-linecap="round">
-            <path d="M75.5 92 Q84 82 92.5 92"/>
-            <path d="M107.5 92 Q116 82 124.5 92"/>
+          <g id="eyesHappy" fill="none" stroke="#2B1A10" stroke-width="4" stroke-linecap="round">
+            <path d="M69 108 Q78 97 87 108"/>
+            <path d="M113 108 Q122 97 131 108"/>
           </g>
-          <!-- beak + the tongue 😛 -->
-          <path d="M91 102 L109 102 L100 109.5 Z" fill="#AE6F4A"/>
-          <g id="tongue">
-            <path d="M93.5 104 Q92 122 100 123.5 Q108 122 106.5 104 Z" fill="url(#tongueGrad)"/>
-            <path d="M100 107.5 L100 117.5" stroke="#CF5C78" stroke-width="1.3" stroke-linecap="round"/>
-            <ellipse cx="96.6" cy="113" rx="1.4" ry="3.2" fill="#fff" opacity=".5"/>
-          </g>
-          <path d="M87.5 97.5 Q100 85.5 112.5 97.5 Q105 103 100 109.5 Q95 103 87.5 97.5 Z" fill="url(#beakGrad)"/>
-          <path d="M100 89.5 Q100.7 98 100 106" fill="none" stroke="#FFF4E4" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>
-          <ellipse cx="95.6" cy="95.4" rx="1.3" ry=".8" fill="#99603E"/>
-          <ellipse cx="104.4" cy="95.4" rx="1.3" ry=".8" fill="#99603E"/>
+          <!-- beak -->
+          <path id="beakLow" d="M91 121 L100 131 L109 121 Z" fill="#E8800C"/>
+          <path d="M88 120 Q100 108 112 120 Q100 125 88 120 Z" fill="#FF9F1C"/>
         </g>
       </g>
     </svg>
@@ -905,7 +870,7 @@
   resize();
 
   const CONFETTI = ["#FFD43B", "#FF5C8A", "#FFB5C5", "#FFFFFF", "#FF9F1C", "#B794F6", "#7FD8FF"];
-  const FLUFF = ["#F4D58E", "#EEC673", "#FBE9B9", "#D9AC55"];
+  const FLUFF = ["#FFD43B", "#FFE58A", "#F5C518", "#FFF2A8"];
   const CURLS = ["#1E1623", "#2A1F31", "#372A42"];
   const rand = (a, b) => a + Math.random() * (b - a);
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -1055,23 +1020,23 @@
     };
 
     // dark mass behind so no gaps show between curls
-    add("ellipse", { cx: 100, cy: 52, rx: 48, ry: 22, fill: "#1A1220" });
-    add("ellipse", { cx: 59, cy: 82, rx: 8, ry: 14, fill: "#1A1220" });
-    add("ellipse", { cx: 141, cy: 82, rx: 8, ry: 14, fill: "#1A1220" });
+    add("ellipse", { cx: 100, cy: 56, rx: 52, ry: 24, fill: "#1A1220" });
+    add("ellipse", { cx: 50, cy: 88, rx: 8, ry: 14, fill: "#1A1220" });
+    add("ellipse", { cx: 150, cy: 88, rx: 8, ry: 14, fill: "#1A1220" });
     // ringlets hanging down beside the eyes
-    for (const [x, y, r] of [[56, 104, 6.5], [144, 104, 6.5], [58, 93, 8], [142, 93, 8]]) ringlet(x, y, r);
+    for (const [x, y, r] of [[47, 111, 6.5], [153, 111, 6.5], [49, 98, 8], [151, 98, 8]]) ringlet(x, y, r);
     // rows around the crown: [radius, from angle, to angle (× π), count, size]
-    const rows = [[46, .9, 2.1, 22, 10.5], [34, 1.0, 2.0, 16, 10], [21, 1.1, 1.9, 10, 9.5], [8, 1.2, 1.8, 4, 9]];
+    const rows = [[50, .92, 2.08, 24, 11], [37, 1.0, 2.0, 17, 10.5], [24, 1.1, 1.9, 11, 10], [10, 1.2, 1.8, 4, 9.5]];
     for (const [rad, a0, a1, n, size] of rows) {
       for (let i = 0; i < n; i++) {
         const a = Math.PI * (a0 + (a1 - a0) * (i / (n - 1))) + (rnd() - .5) * .08;
-        ringlet(100 + Math.cos(a) * rad, 68 + Math.sin(a) * rad, size + (rnd() - .5) * 3);
+        ringlet(100 + Math.cos(a) * rad, 66 + Math.sin(a) * rad, size + (rnd() - .5) * 3);
       }
     }
     // fringe
     for (let i = 0; i < 7; i++) {
-      const x = 73 + i * 9;
-      ringlet(x, 67 + Math.abs(x - 100) * .08 + (rnd() - .5) * 2, 6.5 + rnd() * 1.5);
+      const x = 70 + i * 10;
+      ringlet(x, 77 + Math.abs(x - 100) * .08 + (rnd() - .5) * 2, 7 + rnd() * 1.5);
     }
   })();
 
@@ -1112,20 +1077,22 @@
     return Math.max(1.3, Math.min(2.4, (innerWidth * 1.05) / base, (r.bottom - 8) / base));
   }
 
-  // t goes 0 → 1: head and body swell into one ball, wings and feet get pushed out, a balloon shine appears.
+  // t goes 0 → 1: the body swells, the hair stretches with it, wings and feet get pushed out, a balloon shine appears.
   function shapeInflate(t) {
     const set = (id, attrs) => { const el = $(id); for (const k in attrs) el.setAttribute(k, attrs[k]); };
-    set("bodyShape", { rx: 62 + 24 * t, ry: 50 + 22 * t, cy: 140 - 12 * t });
-    set("headShape", { r: 40 + 12 * t, cy: 82 + 2 * t });
-    set("belly", { rx: 38 + 18 * t, ry: 26 + 12 * t, cy: 152 - 6 * t });
-    set("neckShade", { opacity: (.35 * (1 - t)).toFixed(2) });
-    set("shine", { opacity: Math.max(0, (t - .25) * .9), rx: 12 + 10 * t, ry: 7 + 5 * t, cx: 62 - 10 * t, cy: 122 - 4 * t });
-    set("wingGL", { transform: `translate(${-24 * t} ${-4 * t}) rotate(${18 + 40 * t} 44 140)` });
-    set("wingGR", { transform: `translate(${24 * t} ${-4 * t}) rotate(${-18 - 40 * t} 156 140)` });
-    set("feet", { transform: `translate(0 ${6 * t})` });
-    set("hair", { transform: `translate(0 ${-4 * t}) translate(100 82) scale(${1 + .3 * t}) translate(-100 -82)` });
-    set("face", { transform: `translate(0 ${4 * t})` });
-    set("shadow", { rx: 54 + 30 * t });
+    set("bodyShape", { rx: 64 + 20 * t, ry: 64 + 15 * t, cy: 114 - 3 * t });
+    set("belly", { rx: 36 + 14 * t, ry: 24 + 8 * t, cy: 146 + 4 * t });
+    set("shine", { opacity: Math.max(0, (t - .25) * .9), rx: 12 + 10 * t, ry: 7 + 5 * t, cx: 58 - 10 * t, cy: 118 - 2 * t });
+    set("wingGL", { transform: `translate(${-20 * t} ${-6 * t}) rotate(${18 + 40 * t} 40 122)` });
+    set("wingGR", { transform: `translate(${20 * t} ${-6 * t}) rotate(${-18 - 40 * t} 160 122)` });
+    set("feet", { transform: `translate(0 ${10 * t})` });
+    set("hair", { transform: `translate(0 ${-3 * t}) translate(100 114) scale(${1 + .31 * t} ${1 + .23 * t}) translate(-100 -114)` });
+    set("shadow", { rx: 52 + 26 * t, cy: 190 + 8 * t });
+    chickWrap.querySelectorAll(".cheek").forEach((c, i) => {
+      c.setAttribute("rx", 11 + 6 * t);
+      c.setAttribute("ry", 7 + 3 * t);
+      c.setAttribute("cx", i ? 136 + 10 * t : 64 - 10 * t);
+    });
   }
 
   function inflate(t) {
@@ -1153,7 +1120,7 @@
     hint.style.opacity = 0;
 
     inflate(Math.min(1, clicks / (TOTAL - 1)));
-    chickWrap.style.setProperty("--blush-amt", Math.min(1, .25 + clicks * .014));
+    chickWrap.style.setProperty("--blush-amt", Math.min(1, .4 + clicks * .013));
 
     btn.textContent = buttonText(clicks);
     const wild = Math.min(1, clicks / 30);
