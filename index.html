@@ -693,6 +693,27 @@
 
   #reveal.read .replay { display: block; }
 
+  .sound {
+    position: fixed;
+    top: max(12px, env(safe-area-inset-top));
+    right: 12px;
+    z-index: 70;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .75);
+    box-shadow: 0 4px 14px rgba(74, 44, 42, .15);
+    font-size: 20px;
+    line-height: 44px;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  .sound:focus-visible { outline: 3px dashed var(--rose-deep); outline-offset: 3px; }
+
   #fx {
     position: fixed;
     inset: 0;
@@ -916,6 +937,7 @@
   </div>
 </section>
 
+<button class="sound" id="sound" type="button" aria-label="Mute sounds">🔊</button>
 <div id="flash"></div>
 <canvas id="fx"></canvas>
 
@@ -1161,6 +1183,172 @@
     }, 260);
   }
 
+  // ---------- sounds (all synthesized, nothing to download) ----------
+  const sfx = (() => {
+    let ac = null, master = null, noiseBuf = null, boxTimer = null;
+    let muted = false;
+    try { muted = localStorage.getItem("muted") === "1"; } catch {}
+
+    function ctx() {
+      if (!ac) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        // play even when the iPhone's silent switch is on
+        try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch {}
+        ac = new AC();
+        master = ac.createGain();
+        master.gain.value = muted ? 0 : .6;
+        master.connect(ac.destination);
+      }
+      if (ac.state === "suspended") ac.resume();
+      return ac;
+    }
+
+    // one note with a pitch glide and a quick fade
+    function tone({ type = "sine", from, to = from, dur = .15, vol = .3, delay = 0 }) {
+      const a = ctx();
+      if (!a) return;
+      const t = a.currentTime + delay;
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(from, t);
+      o.frequency.exponentialRampToValueAtTime(to, t + dur);
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + .01);
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      o.connect(g).connect(master);
+      o.start(t);
+      o.stop(t + dur + .02);
+    }
+
+    // a burst of filtered noise: air, smacks, rustles
+    function noise({ dur = .2, vol = .3, freq = 1000, to, q = 1, type = "bandpass", delay = 0 }) {
+      const a = ctx();
+      if (!a) return;
+      if (!noiseBuf) {
+        noiseBuf = a.createBuffer(1, a.sampleRate, a.sampleRate);
+        const d = noiseBuf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      }
+      const t = a.currentTime + delay;
+      const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+      s.buffer = noiseBuf;
+      f.type = type;
+      f.Q.value = q;
+      f.frequency.setValueAtTime(freq, t);
+      if (to) f.frequency.exponentialRampToValueAtTime(to, t + dur);
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      s.connect(f).connect(g).connect(master);
+      s.start(t);
+      s.stop(t + dur + .02);
+    }
+
+    const chord = (notes, opts) => notes.forEach((n, i) =>
+      tone(Object.assign({}, opts, { from: n, delay: (opts.delay || 0) + i * (opts.spread ?? .06) })));
+
+    return {
+      get muted() { return muted; },
+      toggle() {
+        muted = !muted;
+        try { localStorage.setItem("muted", muted ? "1" : "0"); } catch {}
+        if (ctx()) master.gain.setTargetAtTime(muted ? 0 : .6, ac.currentTime, .02);
+        return muted;
+      },
+      // a pump of air and a squeaky chirp that climbs as he fills up
+      poke(t) {
+        noise({ dur: .14, vol: .18, freq: 500 + 1400 * t, to: 900 + 2000 * t, q: .9 });
+        tone({ type: "triangle", from: 650 + 900 * t, to: 1000 + 1400 * t, dur: .09, vol: .16, delay: .03 });
+      },
+      chirp() {
+        tone({ type: "triangle", from: 1400, to: 2100, dur: .08, vol: .2 });
+        tone({ type: "triangle", from: 1500, to: 2300, dur: .08, vol: .2, delay: .13 });
+      },
+      kiss() {
+        noise({ dur: .05, vol: .5, freq: 2600, q: 2.5 });
+        tone({ type: "sine", from: 420, to: 900, dur: .16, vol: .25, delay: .05 });
+      },
+      hug() { chord([523, 659, 784, 1047], { type: "sine", dur: .9, vol: .09, spread: .07 }); },
+      heart() { chord([1319, 1568, 2093], { type: "triangle", dur: .35, vol: .1, spread: .08 }); },
+      boop() { tone({ type: "sine", from: 950, to: 320, dur: .2, vol: .35 }); },
+      whoosh() { noise({ dur: .5, vol: .22, freq: 350, to: 2600, q: 1.2 }); },
+      pat() { for (let i = 0; i < 4; i++) noise({ dur: .07, vol: .25, freq: 300, q: 1.5, type: "lowpass", delay: i * .2 }); },
+      dance() {
+        [523, 659, 784, 659, 523, 659, 784, 1047].forEach((n, i) =>
+          tone({ type: "square", from: n, dur: .14, vol: .05, delay: i * .2 }));
+      },
+      worried() {
+        tone({ type: "sine", from: 700, to: 680, dur: .16, vol: .2 });
+        tone({ type: "sine", from: 540, to: 500, dur: .3, vol: .2, delay: .2 });
+      },
+      // rising whine while he's about to blow
+      charge(dur) {
+        const a = ctx();
+        if (!a) return;
+        const t = a.currentTime;
+        const o = a.createOscillator(), g = a.createGain();
+        o.type = "sawtooth";
+        o.frequency.setValueAtTime(180, t);
+        o.frequency.exponentialRampToValueAtTime(1400, t + dur);
+        g.gain.setValueAtTime(.0001, t);
+        g.gain.exponentialRampToValueAtTime(.06, t + dur * .9);
+        g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+        o.connect(g).connect(master);
+        o.start(t);
+        o.stop(t + dur + .02);
+        noise({ dur, vol: .08, freq: 400, to: 4000, q: .7 });
+      },
+      pop() {
+        noise({ dur: .4, vol: 1, freq: 4000, to: 200, type: "lowpass", q: .5 });
+        tone({ type: "sine", from: 170, to: 40, dur: .35, vol: .7 });
+      },
+      // the let-go-balloon raspberry: a buzzy tone wobbling fast, rising then sagging as the air runs out
+      deflate(dur) {
+        const a = ctx();
+        if (!a) return;
+        const t = a.currentTime;
+        const o = a.createOscillator(), lfo = a.createOscillator(), depth = a.createGain();
+        const f = a.createBiquadFilter(), g = a.createGain();
+        o.type = "sawtooth";
+        o.frequency.setValueAtTime(240, t);
+        o.frequency.linearRampToValueAtTime(430, t + dur * .45);
+        o.frequency.linearRampToValueAtTime(150, t + dur);
+        lfo.type = "square";
+        lfo.frequency.setValueAtTime(24, t);
+        lfo.frequency.linearRampToValueAtTime(14, t + dur);
+        depth.gain.value = 70;
+        f.type = "lowpass";
+        f.frequency.value = 1500;
+        g.gain.setValueAtTime(.0001, t);
+        g.gain.exponentialRampToValueAtTime(.2, t + .05);
+        g.gain.setValueAtTime(.2, t + dur * .75);
+        g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+        lfo.connect(depth).connect(o.frequency);
+        o.connect(f).connect(g).connect(master);
+        o.start(t); lfo.start(t);
+        o.stop(t + dur + .05); lfo.stop(t + dur + .05);
+      },
+      reveal() { chord([523, 659, 784, 988, 1047, 1319, 1568], { type: "triangle", dur: .7, vol: .08, spread: .09 }); },
+      open() {
+        noise({ dur: .35, vol: .14, freq: 3000, type: "highpass", q: .5 });
+        chord([1047, 1319, 1568], { type: "sine", dur: .6, vol: .08, spread: .1, delay: .3 });
+      },
+      // a gentle little music box tune while she reads
+      musicBox() {
+        if (boxTimer) return;
+        const tune = [784, 659, 698, 784, 880, 784, 659, 523, 587, 659, 698, 659, 587, 523, 587, 659,
+                      784, 880, 988, 1047, 988, 880, 784, 659, 698, 784, 659, 587, 523, 587, 523, 0];
+        let i = 0;
+        boxTimer = setInterval(() => {
+          const n = tune[i++ % tune.length];
+          if (!n) return;
+          tone({ type: "sine", from: n, dur: 1.1, vol: .07 });
+          tone({ type: "sine", from: n * 2, dur: .5, vol: .015 });
+        }, 430);
+      }
+    };
+  })();
+
   // ---------- stage 1 ----------
   // his short messy curls: a dark cap, round curls with a swirl and a shine, one spring curl on top
   (function drawHair() {
@@ -1317,6 +1505,7 @@
 
   const MOMENTS = {
     4: { line: "hi cutie 👋", run() {
+      sfx.chirp();
       $("herWingL").animate([
         { transform: "rotate(0deg)" }, { transform: "rotate(110deg)" }, { transform: "rotate(70deg)" },
         { transform: "rotate(110deg)" }, { transform: "rotate(70deg)" }, { transform: "rotate(0deg)" }
@@ -1337,9 +1526,10 @@
       herWrap.animate([{ rotate: "0deg" }, { rotate: "-10deg", offset: .4 }, { rotate: "0deg" }], { duration: 700 });
       herChick.classList.add("love");
       setTimeout(() => {
+        sfx.kiss();
         const to = at(me, 136, 118);
         const flight = toss(at(her, 90, 124), to, { size: 24, color: "#FF5C8A", shape: "heart" });
-        setTimeout(() => { heartsAt(to.x, to.y, 10); setLove(true); }, flight);
+        setTimeout(() => { heartsAt(to.x, to.y, 10); setLove(true); sfx.heart(); }, flight);
       }, 350);
       setTimeout(() => setLove(false), 2100);
       return 2200;
@@ -1350,13 +1540,14 @@
       const hisBeak = at(me, 106, 122), herBeak = at(her, 94, 124);
       herHop(hisBeak.x - herBeak.x + 4, hisBeak.y - herBeak.y, 1500);
       lean(5, 1500);
-      setTimeout(() => { confetti(hisBeak.x, hisBeak.y, 16, 5); setLove(true); }, 500);
+      setTimeout(() => { confetti(hisBeak.x, hisBeak.y, 16, 5); setLove(true); sfx.boop(); }, 500);
       setTimeout(() => setLove(false), 1200);
       return 1600;
     } },
 
     23: { line: "dance with me 💃", run() {
       setLove(true);
+      sfx.dance();
       for (let i = 0; i < 4; i++) {
         setTimeout(() => {
           const side = i % 2 ? 1 : -1;
@@ -1373,8 +1564,9 @@
     35: { line: "for me?? 🥺", sayAt: 800, run() {
       const { me, her } = box();
       const to = at(her, 100, 60);
+      sfx.whoosh();
       const flight = toss(at(me, 165, 118), to, { size: 34, shape: "text", text: "🌹", vr: .08 }, 48);
-      setTimeout(() => { heartsAt(to.x, to.y, 8); herChick.classList.add("love"); }, flight);
+      setTimeout(() => { heartsAt(to.x, to.y, 8); herChick.classList.add("love"); sfx.heart(); }, flight);
       setTimeout(() => herChick.classList.remove("love"), 2200);
       return 2300;
     } },
@@ -1387,6 +1579,7 @@
         herChick.classList.add("love");
         chick.classList.add("love");
         $("herWingL").animate([{ transform: "rotate(40deg)" }, { transform: "rotate(85deg)" }], { duration: 200, iterations: 6, direction: "alternate" });
+        sfx.pat();
       }, 650);
       setTimeout(() => setLove(false), 1900);
       return 2300;
@@ -1398,6 +1591,8 @@
       herWrap.animate([{ rotate: "0deg" }, { rotate: "-8deg", offset: .32 }, { rotate: "-8deg", offset: .78 }, { rotate: "0deg" }], { duration: 2000, easing: "ease-in-out" });
       setTimeout(() => {
         setLove(true);
+        sfx.hug();
+        sfx.heart();
         const heart = document.createElement("div");
         heart.className = "big-heart";
         heart.textContent = "💗";
@@ -1411,6 +1606,7 @@
     } },
 
     47: { line: "babe you're gonna pop!! 😰", run() {
+      sfx.worried();
       herWrap.animate([
         { rotate: "0deg" }, { rotate: "-9deg" }, { rotate: "9deg" }, { rotate: "-9deg" }, { rotate: "9deg" }, { rotate: "0deg" }
       ], { duration: 900 });
@@ -1428,6 +1624,7 @@
     lean(6, ms);
     setTimeout(() => {
       setLove(true);
+      sfx.hug();
       herWrap.classList.add("hugging");
       const { me: m, her: h } = box();
       heartsAt((m.right + h.left) / 2, Math.min(m.top + m.height * .3, h.top), 8);
@@ -1444,6 +1641,8 @@
     lean(6, ms);
     setTimeout(() => {
       setLove(true);
+      sfx.kiss();
+      if (big) sfx.heart();
       chickWrap.style.setProperty("--blush-amt", 1);
       emojiAt(cheek.x, cheek.y - 4, "💋", big ? 34 : 24, -.3);
       heartsAt(cheek.x, cheek.y - 14, big ? 18 : 8);
@@ -1477,6 +1676,7 @@
     }
     pokeBurst(x, y);
     react();
+    sfx.poke(Math.min(1, clicks / (TOTAL - 1)));
 
     hint.style.opacity = 0;
 
@@ -1528,6 +1728,7 @@
     chick.classList.add("happy");
     chickWrap.getAnimations().forEach((a) => a.cancel());
     chickWrap.classList.add("charge");
+    sfx.charge(1.3);
 
     // she runs under him to catch him
     herWrap.getAnimations().forEach((a) => a.cancel());
@@ -1545,6 +1746,7 @@
       speech.style.visibility = "hidden";
       btn.textContent = "noooo!";
       flash.classList.add("go");
+      sfx.pop();
 
       const word = document.createElement("div");
       word.className = "pop-text";
@@ -1566,6 +1768,7 @@
         confetti(innerWidth * .15, innerHeight * .9, 60, 16);
         confetti(innerWidth * .85, innerHeight * .9, 60, 16);
         document.body.classList.add("revealed");
+        setTimeout(() => sfx.reveal(), 500);
         setTimeout(() => reveal.classList.add("stage2"), 3200);
       });
     }, 1300);
@@ -1596,6 +1799,7 @@
     holdOn(s0);
     chickWrap.appendChild(herWrap);
 
+    sfx.deflate(AIR);
     const t0 = performance.now();
     let frames = 0;
     function step(now) {
@@ -1665,6 +1869,7 @@
     if (!reveal.classList.contains("stage2") || envelope.classList.contains("open")) return;
     envelope.classList.add("open");
     reveal.classList.add("opening");
+    sfx.open();
     const r = envelope.getBoundingClientRect();
     setTimeout(() => confetti(r.left + r.width / 2, r.top + r.height / 3, 120, 13), 600);
 
@@ -1681,10 +1886,19 @@
       reveal.classList.add("read");
       reveal.scrollTop = 0;
       rainHearts();
+      sfx.musicBox();
     }, 1450);
   });
 
   $("replay").addEventListener("click", () => location.reload());
+
+  const soundBtn = $("sound");
+  const showSound = () => {
+    soundBtn.textContent = sfx.muted ? "🔇" : "🔊";
+    soundBtn.setAttribute("aria-label", sfx.muted ? "Turn sounds on" : "Mute sounds");
+  };
+  soundBtn.addEventListener("click", () => { sfx.toggle(); showSound(); });
+  showSound();
 </script>
 </body>
 </html>
